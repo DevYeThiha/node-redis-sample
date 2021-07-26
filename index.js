@@ -26,8 +26,13 @@ app.get("/", async (req, res) => {
 app.get("/posts/:id", async (req,res) => {
     const { id } = req.params;
 
-    const response = await axios.get(`https://jsonplaceholder.typicode.com/posts/${id}`);
 
+    const cachedPost = await client.get(`post-${id}`);
+
+    if (cachedPost) return res.json(JSON.parse(cachedPost));
+
+    const response = await axios.get(`https://jsonplaceholder.typicode.com/posts/${id}`);
+    client.set(`post-${id}`, JSON.stringify(response.data));
     return res.json(response.data);
 });
 
